@@ -18,7 +18,7 @@ def comments_strip(string, loader_context):
         else:
             return string[0].rstrip(' commenti')
 
-    elif lang == 'en':
+    elif lang == 'vn':
         if (string[0] == 'Share'):
             return '0'
         new_string = string[0].rstrip(' bình luậ')
@@ -46,7 +46,7 @@ def reactions_strip(string, loader_context):
             while newstring.rfind('.') != -1:
                 newstring = newstring[0:newstring.rfind('.')] + newstring[newstring.rfind('.') + 1:]
             return int(newstring) + friends
-    elif lang == 'en':
+    elif lang == 'vn':
         newstring = string[0]
         # 19,298,873
         if len(newstring.split()) == 1:
@@ -382,6 +382,7 @@ def parse_date2(init_date, loader_context):
         }
 
         date = init_date[0].split()
+
         year, month, day = [int(i) for i in str(datetime.now().date()).split(sep='-')]  # default is today
 
         l = len(date)
@@ -570,6 +571,57 @@ def parse_date2(init_date, loader_context):
         # parsing failed - l too big
         else:
             return date
+    elif lang == 'vn':
+
+        date = init_date[0].replace(",", "").replace(":", " ").split()
+        date_string = init_date[0]
+        l = len(date)
+
+        # sanity check
+        if l == 0:
+            return 'Error: no data'
+        elif l == 2:
+            if "giờ" in date_string:
+                hour = int(date[0])
+                date = datetime.now() - timedelta(hours=hour) + timedelta(hours=7)
+                return date
+            elif "phút" in date_string:
+                min = int(date[0])
+                date = datetime.now() - timedelta(minutes=min) + timedelta(hours=7)
+                return date
+            elif "bây giờ" in date_string:
+                return datetime.now()
+            elif "hôm qua" in date_string:
+                date = datetime.now() - timedelta(days=1) + timedelta(hours=7)
+            else:
+                return datetime.now()
+        elif l == 3:
+            if "giờ" in date_string:
+                hour = int(date[0])
+                date = datetime.now() - timedelta(hours=hour) + timedelta(hours=7)
+                return date
+            elif "phút" in date_string:
+                min = int(date[0])
+                date = datetime.now() - timedelta(minutes=min) + timedelta(hours=7)
+                return date
+            else:
+                return datetime.now()
+        elif l == 6:
+            year = datetime.now().year
+            month = int(date[2])
+            day = int(date[0])
+            hour = int(date[4])
+            min = int(date[5])
+            return datetime(year, month, day, hour, min)
+        elif l == 7:
+            year = int(date[3])
+            month = int(date[2])
+            day = int(date[0])
+            hour = int(date[5])
+            min = int(date[6])
+            return datetime(year, month, day, hour, min)
+        else:
+            return datetime.now()
     # parsing failed - language not supported
     else:
         return init_date

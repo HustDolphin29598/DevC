@@ -39,7 +39,7 @@ def predict_lgr(model, text):
     index = np.argmax(pre_proba)
     acc = str(round(pre_proba[index] * 100, 2))
     what = "positive" if index == 1 else "negative"
-    if float(acc) < 60.0:
+    if float(acc) < 53.0:
         what = "neutral"
     acc = str(acc) + "%"
     return acc, what

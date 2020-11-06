@@ -50,21 +50,22 @@ def analyse_campaign(campaign_name):
     campaign.save()
 
 
-def crawl(campaign_name, email, password, keyword, start_time, links=[]):
+def crawl(campaign_name, email, password, keyword, start_time, end_time, links=[]):
     start_time_str = start_time.strftime("%Y-%m-%d")
+    end_time_str = end_time.strftime("%Y-%m-%d")
     for link in links:
+        print(link)
         sub = re.search(".com/(.*?)/", link)
         if sub:
             page = sub.group(1)
         else:
             return
-        crawl_string = 'scrapy crawl fb -a email="' + email + '" -a password="' + password + '" -a campaign="' + campaign_name + '" -a date="' + start_time_str + '" -a keyword="' + keyword + '" -a page="' + page + '"'
+        crawl_string = 'scrapy crawl fb -a email="' + email + '" -a password="' + password + '" -a campaign="' + campaign_name + '" -a starttime="' + start_time_str + '" -a endtime="' + end_time_str +'" -a keyword="' + keyword + '" -a page="' + page + '"'
         os.system("cd fbcrawler && " + crawl_string)
 
 
 def get_campaign(name):
     campaign = models.Campaign.objects(name=name).first()
-    print(campaign._id)
     return campaign
 
 
@@ -103,7 +104,7 @@ def predict_sentiment_campaign(model, campaign_name):
 
 def create_campaign(model, campaign_name, email, password, keyword, links, start_time, end_time):
 
-    # crawl(campaign_name, email, password, keyword, start_time, links)
+    crawl(campaign_name, email, password, keyword, start_time, end_time, links)
 
     time.sleep(2)
 
