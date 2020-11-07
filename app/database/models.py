@@ -22,6 +22,7 @@ class Comment(mongoEngine.Document):
     text = StringField(required=True)
     post_id = StringField()
     label = StringField()
+    date = DateField()
 
 class Post(mongoEngine.Document):
     _id = ObjectIdField()
@@ -29,7 +30,7 @@ class Post(mongoEngine.Document):
     campaign = StringField()
     source = StringField()
     comments_num = StringField()
-    date = StringField()
+    date = DateField()
     comments = ListField(StringField())
     url = StringField()
     text = StringField()

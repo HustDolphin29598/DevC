@@ -172,11 +172,8 @@ class FacebookSpider(scrapy.Spider):
             if post_date is None:
                 date_string = post.xpath('.//abbr/text()').get()
                 date = parse_date2([date_string], {'lang': self.lang})
-                post_date = datetime(date.year, date.month, date.day) if date is not None else date
-                date = str(date)
+                post_date = date if date is not None else None
 
-            print(self.end_time)
-            print(post_date)
             if self.end_time < post_date:
                 continue
 
@@ -322,6 +319,7 @@ class FacebookSpider(scrapy.Spider):
                 new = ItemLoader(item=CommentsItem(), selector=reply)
                 new.context['lang'] = self.lang
                 new.add_value('post_id', post_id)
+                new.add_xpath('date', './/abbr/text()')
                 new.add_xpath('text', './/div[h3]/div[1]//text()')
                 yield new.load_item()
 
@@ -376,6 +374,7 @@ class FacebookSpider(scrapy.Spider):
                 new = ItemLoader(item=CommentsItem(), selector=root)
                 new.context['lang'] = self.lang
                 new.add_xpath('text', './/div[1]//text()')
+                new.add_xpath('date', './/abbr/text()')
                 new.add_value('post_id', post_id)
                 yield new.load_item()
 
