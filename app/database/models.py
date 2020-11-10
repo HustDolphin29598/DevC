@@ -1,14 +1,14 @@
 import mongoengine as me
 from flask_mongoengine import MongoEngine
-from mongoengine.fields import StringField, DateField, ListField, IntField, ObjectIdField, EmbeddedDocumentField, ReferenceField
+from mongoengine.fields import StringField, DateField, ListField, IntField, ObjectIdField, EmbeddedDocumentField, ReferenceField, DictField, DateTimeField
 from .db import mongoEngine
 
 class Campaign(mongoEngine.Document):
     _id = ObjectIdField()
     name = StringField(required=True)
     description = StringField()
-    startTime = DateField(required=True)
-    endTime = DateField(required=True)
+    startTime = DateTimeField(required=True)
+    endTime = DateTimeField(required=True)
     keyword = StringField(required=True)
     links = ListField(mongoEngine.StringField())
     total_comments = IntField()
@@ -22,7 +22,7 @@ class Comment(mongoEngine.Document):
     text = StringField(required=True)
     post_id = StringField()
     label = StringField()
-    date = DateField()
+    date = DateTimeField()
 
 class Post(mongoEngine.Document):
     _id = ObjectIdField()
@@ -31,7 +31,7 @@ class Post(mongoEngine.Document):
     source = StringField()
     comments_num = StringField()
     date = DateField()
-    comments = ListField(StringField())
+    comments = DictField()
     url = StringField()
     text = StringField()
     reactions = IntField()

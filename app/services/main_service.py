@@ -2,6 +2,7 @@ from app.services.model_service import load_model_lgr, normalize_text, predict_l
 from flask import jsonify
 from app.database import models
 import threading
+import json
 import logging
 import time
 import re
@@ -33,6 +34,8 @@ def analyse_campaign(campaign_name):
     for post in posts:
         comments = models.Comment.objects(post_id=str(post.post_id))
         for comment in comments:
+            if comment.text is None or not comment.text:
+                comment.delete()
             total_comments += 1
             if comment.label == "positive":
                 total_pos += 1
@@ -81,7 +84,8 @@ def get_comments_of_campaign(campaign_name):
         post_comments = []
         comments = models.Comment.objects(post_id=post.post_id)
         for comment in comments:
-            post_comments.append(comment.to_json())
+            # campaign_comments.append(comment)
+            post_comments.append(comment.to_mongo())
         post.comments = post_comments
         campaign_comments.append(post)
 
