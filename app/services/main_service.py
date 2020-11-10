@@ -113,3 +113,7 @@ def create_campaign(model, campaign_name, email, password, keyword, links, start
     time.sleep(2)  # make sure everything is saved to database before analysing
 
     analyse_campaign(campaign_name)
+
+def get_all_campaign():
+    campaigns = models.Campaign.objects
+    return campaigns

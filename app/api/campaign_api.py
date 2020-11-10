@@ -35,12 +35,13 @@ def create_campaign():
         endTime=end_time,
         keyword=keyword,
         links=links,
-        status="working"  # to identify if it crawling and analysing data or done
+        status="working"  # to identify iéf it crawling and analysing data or done
     )
 
     try:
         campaign_obj.save()
-    except:
+    except Exception as ex:
+        print(ex)
         return Response('Campaign can not be created !', status=500)
 
     # make sure campaign is saved to db
@@ -94,3 +95,11 @@ def crawl():
 #                 texts.append(comment.text)
 #
 #     return jsonify(texts), 200
+
+
+@campaign.route("/campaign/all", methods=["GET"])
+def get_all_campaign():
+    campaigns = main_service.get_all_campaign()
+    if not campaigns:
+        return Response("Campaign not found !", status=404)
+    return jsonify(campaigns), 200
