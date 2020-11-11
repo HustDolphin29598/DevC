@@ -36,13 +36,14 @@ def analyse_campaign(campaign_name):
         for comment in comments:
             if comment.text is None or not comment.text:
                 comment.delete()
-            total_comments += 1
-            if comment.label == "positive":
-                total_pos += 1
-            elif comment.label == "negative":
-                total_neg += 1
-            elif comment.label == "neutral":
-                total_neu += 1
+            else:
+                total_comments += 1
+                if comment.label == "positive":
+                    total_pos += 1
+                elif comment.label == "negative":
+                    total_neg += 1
+                elif comment.label == "neutral":
+                    total_neu += 1
 
     campaign.total_comments = total_comments
     campaign.total_pos = total_pos
