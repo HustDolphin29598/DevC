@@ -122,3 +122,7 @@ def create_campaign(model, campaign_name, email, password, keyword, links, start
 def get_all_campaign():
     campaigns = models.Campaign.objects
     return campaigns
+
+def get_comment_of_post(post_id):
+    comments = models.Comment.objects(post_id=post_id)
+    return comments
