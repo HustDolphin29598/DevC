@@ -21,6 +21,11 @@ crawl_runner = CrawlerRunner()
 def create_campaign():
     data = request.get_json()
     name = data["name"]
+
+    camp = models.Campaign.objects(name=name)
+    if camp is not None:
+        return Response('Campaign existed !', status=500)
+
     description = data["description"]
     start_time = datetime.strptime(data["startTime"], '%Y-%m-%d').date()
     end_time = datetime.strptime(data["endTime"], '%Y-%m-%d').date()
@@ -28,6 +33,10 @@ def create_campaign():
     links = data["links"]
     email = data["email"]
     password = data["password"]
+
+    if email is None or not email or password is None or not password:
+        return Response('Email or password not provided ! Campaign not be created yet !', status=500)
+
     campaign_obj = models.Campaign(
         name=name,
         description=description,
@@ -69,17 +78,17 @@ def get_campaign_info():
     return jsonify(campaign_obj), 200
 
 
-@campaign.route("/crawl", methods=["POST"])
-def crawl():
-    data = request.get_json()
-    email = data['email']
-    password = data['password']
-    date = data['date']
-    links = data['links']
-    keyword = data['keyword']
-    campaign_name = data['campaign']
-    main_service.crawl(campaign_name, email, password, date, keyword, links)
-    return "ok", 200
+# @campaign.route("/crawl", methods=["POST"])
+# def crawl():
+#     data = request.get_json()
+#     email = data['email']
+#     password = data['password']
+#     date = data['date']
+#     links = data['links']
+#     keyword = data['keyword']
+#     campaign_name = data['campaign']
+#     main_service.crawl(campaign_name, email, password, date, keyword, links)
+#     return "ok", 200
 
 #
 # @campaign.route("/comment", methods=["GET"])

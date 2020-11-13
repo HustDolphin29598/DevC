@@ -19,7 +19,7 @@ def get_comment_of_campaign():
             return "No comments found", 404
         comments = main_service.get_comment_of_post(post_id)
         if not comments:
-            "No comments found", 404
+            return "No comments found", 404
         return jsonify(comments), 200
     comments = main_service.get_comments_of_campaign(campaign_name)
     if not comments:
