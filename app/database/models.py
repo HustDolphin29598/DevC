@@ -41,3 +41,4 @@ class Post(mongoEngine.Document):
     wow = IntField()
     sad = IntField()
     care = IntField()
+    angry = IntField()
