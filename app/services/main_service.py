@@ -38,12 +38,16 @@ def analyse_campaign(campaign_name):
                 comment_obj = models.Comment.objects(_id=str(comment._id))
                 comment_obj.delete()
             else:
+                post.total_comments += 1
                 total_comments += 1
                 if comment.label == "positive":
+                    post.total_pos += 1
                     total_pos += 1
                 elif comment.label == "negative":
+                    post.total_neg += 1
                     total_neg += 1
                 elif comment.label == "neutral":
+                    post.total_neu += 1
                     total_neu += 1
 
     campaign.total_comments = total_comments
