@@ -19,12 +19,10 @@ def comments_strip(string, loader_context):
             return string[0].rstrip(' commenti')
 
     elif lang == 'vn':
-        if (string[0] == 'Share'):
-            return '0'
-        new_string = string[0].rstrip(' bình luậ')
-        while new_string.rfind(',') != -1:
-            new_string = new_string[0:new_string.rfind(',')] + new_string[new_string.rfind(',') + 1:]
-        return new_string
+        if string[0].rfind('bình luậ') != -1:
+            return
+        else:
+            return string[0].rstrip(' bình luậ')
     else:
         return string
 
@@ -52,7 +50,7 @@ def reactions_strip(string, loader_context):
         if len(newstring.split()) == 1:
             if "K" in newstring:
                 newstring = newstring.replace("K", "").replace(",", "")
-                return int(newstring) * 100
+                return int(newstring) * 1000
             else:
                 while newstring.rfind(',') != -1:
                     newstring = newstring[0:newstring.rfind(',')] + newstring[newstring.rfind(',') + 1:]
@@ -640,9 +638,10 @@ class FbcrawlItem(scrapy.Item):
     text = scrapy.Field(
         output_processor=Join(separator=u'')
     )  # full text of the post
-    comments_num = scrapy.Field(
-        output_processor=comments_strip
-    )
+    # comments_num = scrapy.Field(
+    #     output_processor=comments_strip
+    # )
+    comments_num = scrapy.Field()
     reactions = scrapy.Field(
         output_processor=reactions_strip
     )  # num of reactions

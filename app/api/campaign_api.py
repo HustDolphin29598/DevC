@@ -23,7 +23,8 @@ def create_campaign():
     name = data["name"]
 
     camp = models.Campaign.objects(name=name)
-    if camp is not None:
+
+    if camp is not None and camp:
         return Response('Campaign existed !', status=500)
 
     description = data["description"]
@@ -72,6 +73,8 @@ def create_campaign():
 @campaign.route("/campaign", methods=["GET"])
 def get_campaign_info():
     campaign_name = request.args.get('name')
+    if campaign_name is None:
+        return Response("Campaign not found !", status=404)
     campaign_obj = main_service.get_campaign(campaign_name)
     if campaign_obj is None:
         return Response("Campaign not found !", status=404)

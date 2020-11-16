@@ -157,12 +157,12 @@ class FacebookSpider(scrapy.Spider):
         return scrapy.Request(url=href, callback=self.parse_page, meta={'index': 1})
 
     def parse_page(self, response):
-
+        post_nums = 0
         # from scrapy.utils.response import open_in_browser
         # open_in_browser(response)
         # select all posts
         for post in response.xpath("//article[contains(@data-ft,'top_level_post_id')]"):
-
+            post_nums += 1
             many_features = post.xpath('./@data-ft').get()
             date = []
             date.append(many_features)
@@ -189,7 +189,15 @@ class FacebookSpider(scrapy.Spider):
             self.logger.info('Parsing post n = {}, post_date = {}'.format(abs(self.count) + 1, date))
 
             new.add_value('campaign', self.campaign)
-            new.add_xpath('comments_num', '//article/footer/div[2]/a[1]/text()')
+            count = 0
+            for comments_num in response.xpath('//article/footer/div[2]/a[1]/text()').extract():
+                # print(comments_num)
+                if comments_num.rfind('bình luậ') != -1:
+                    comments_num = comments_num.rstrip(' bình luậ')
+                count += 1
+                if count == post_nums:
+                    new.add_xpath('comments_num', comments_num)
+                    break
             new.add_value('date', date)
             new.add_xpath('post_id', './@data-ft')
             new.add_xpath('url', ".//a[contains(@href,'footer')]/@href")
@@ -284,6 +292,7 @@ class FacebookSpider(scrapy.Spider):
                     reactions = response.urljoin(reactions[0].extract())
                     yield scrapy.Request(reactions, callback=self.parse_reactions, meta={'item': new})
                 except:
+                    print('except')
                     yield new.load_item()
         except:
             pass
@@ -350,17 +359,23 @@ class FacebookSpider(scrapy.Spider):
                                                'post_id': post_id})
 
     def parse_reactions(self, response):
-        new = ItemLoader(item=FbcrawlItem(), response=response, parent=response.meta['item'])
-        new.context['lang'] = self.lang
-        new.add_xpath('like', "//a[contains(@href,'reaction_type=1')]/span/text()")
-        new.add_xpath('haha', "//a[contains(@href,'reaction_type=4')]/span/text()")
-        new.add_xpath('love', "//a[contains(@href,'reaction_type=2')]/span/text()")
-        new.add_xpath('wow', "//a[contains(@href,'reaction_type=3')]/span/text()")
-        new.add_xpath('sad', "//a[contains(@href,'reaction_type=7')]/span/text()")
-        new.add_xpath('angry', "//a[contains(@href,'reaction_type=8')]/span/text()")
-        new.add_xpath('care', "//a[contains(@href,'reaction_type=16')]/span/text()")
-
-        yield new.load_item()
+        try:
+            print("try")
+            new = ItemLoader(item=FbcrawlItem(), response=response, parent=response.meta['item'])
+            new.context['lang'] = self.lang
+            new.add_xpath('like', "//a[contains(@href,'reaction_type=1')]/span/text()")
+            new.add_xpath('haha', "//a[contains(@href,'reaction_type=4')]/span/text()")
+            new.add_xpath('love', "//a[contains(@href,'reaction_type=2')]/span/text()")
+            new.add_xpath('wow', "//a[contains(@href,'reaction_type=3')]/span/text()")
+            new.add_xpath('sad', "//a[contains(@href,'reaction_type=7')]/span/text()")
+            new.add_xpath('angry', "//a[contains(@href,'reaction_type=8')]/span/text()")
+            new.add_xpath('care', "//a[contains(@href,'reaction_type=16')]/span/text()")
+            yield new.load_item()
+        except:
+            print("except")
+            new = ItemLoader(item=FbcrawlItem(), parent=response.meta['item'])
+            new.context['lang'] = self.lang
+            yield new.load_item()
 
     def parse_reply(self, response):
         post_id = response.meta['post_id']

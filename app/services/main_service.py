@@ -35,7 +35,8 @@ def analyse_campaign(campaign_name):
         comments = models.Comment.objects(post_id=str(post.post_id))
         for comment in comments:
             if comment.text is None or not comment.text:
-                comment.delete()
+                comment_obj = models.Comment.objects(_id=str(comment._id))
+                comment_obj.delete()
             else:
                 total_comments += 1
                 if comment.label == "positive":
@@ -63,8 +64,12 @@ def crawl(campaign_name, email, password, keyword, start_time, end_time, links=[
         if sub:
             page = sub.group(1)
         else:
-            return
-        crawl_string = 'scrapy crawl fb -a email="' + email + '" -a password="' + password + '" -a campaign="' + campaign_name + '" -a starttime="' + start_time_str + '" -a endtime="' + end_time_str +'" -a keyword="' + keyword + '" -a page="' + page + '"'
+            sub = re.search(".com/(.*?)/", link + "/")
+            if sub:
+                page = sub.group(1)
+            else:
+                return
+        crawl_string = 'scrapy crawl fb -a email="' + email + '" -a password="' + password + '" -a campaign="' + campaign_name + '" -a starttime="' + start_time_str + '" -a endtime="' + end_time_str + '" -a keyword="' + keyword + '" -a page="' + page + '"'
         os.system("cd fbcrawler && " + crawl_string)
 
 
@@ -100,15 +105,14 @@ def predict_sentiment_campaign(model, campaign_name):
     for post in posts:
         comments = models.Comment.objects(post_id=post.post_id)
         for comment in comments:
-            if comment is not None:
-                if comment.text is not None:
+            if comment.text is not None and comment.text:
+                if comment.label is None or not comment.label:
                     predict = predict_lgr(model, comment.text)
                     comment.label = predict[1]
                     comment.save()
 
 
 def create_campaign(model, campaign_name, email, password, keyword, links, start_time, end_time):
-
     crawl(campaign_name, email, password, keyword, start_time, end_time, links)
 
     time.sleep(2)
@@ -119,10 +123,13 @@ def create_campaign(model, campaign_name, email, password, keyword, links, start
 
     analyse_campaign(campaign_name)
 
+
 def get_all_campaign():
     campaigns = models.Campaign.objects
     return campaigns
 
+
 def get_comment_of_post(post_id):
     comments = models.Comment.objects(post_id=post_id)
     return comments
+
