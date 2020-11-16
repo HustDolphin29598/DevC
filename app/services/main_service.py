@@ -32,6 +32,10 @@ def analyse_campaign(campaign_name):
     posts = models.Post.objects(campaign=str(campaign_name))
 
     for post in posts:
+        post.total_comments = 0
+        post.total_neu = 0
+        post.total_neg = 0
+        post.total_pos = 0
         comments = models.Comment.objects(post_id=str(post.post_id))
         for comment in comments:
             if comment.text is None or not comment.text:

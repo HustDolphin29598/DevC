@@ -290,7 +290,7 @@ class FacebookSpider(scrapy.Spider):
                     reactions = response.xpath(
                         "//div[contains(@id,'sentence')]/a[contains(@href,'reaction/profile')]/@href")
                     reactions = response.urljoin(reactions[0].extract())
-                    yield scrapy.Request(reactions, callback=self.parse_reactions, meta={'item': new})
+                    yield scrapy.Request(reactions, callback=self.parse_reactions, meta={'item': new}, errback=self.save_item)
                 except:
                     print('except')
                     yield new.load_item()
@@ -429,3 +429,8 @@ class FacebookSpider(scrapy.Spider):
     def id_strip(self, post_id):
         d = json.loads(post_id[::-1][0])  # nested dict of features
         return str(d['top_level_post_id'])
+
+    def save_item(self, response):
+        new = response.request.meta['item']
+        new.context['lang'] = self.lang
+        yield new.load_item()
