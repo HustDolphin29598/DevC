@@ -53,6 +53,7 @@ def analyse_campaign(campaign_name):
                 elif comment.label == "neutral":
                     post.total_neu += 1
                     total_neu += 1
+        post.save()
 
     campaign.total_comments = total_comments
     campaign.total_pos = total_pos
