@@ -88,6 +88,11 @@ def get_campaign(name):
     return campaign
 
 
+def get_post(post_id):
+    posts = models.Post.objects(post_id=post_id).first()
+    return posts
+
+
 def get_comments_of_campaign(campaign_name):
     campaign = models.Campaign.objects(name=campaign_name).first()
     if campaign is None:
