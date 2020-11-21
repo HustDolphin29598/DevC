@@ -57,7 +57,7 @@ def create_campaign():
     # make sure campaign is saved to db
     time.sleep(1)
 
-    campaign_thread = threading.Thread(target=main_service.create_campaign, kwargs={'model': app.model_lgr,
+    campaign_thread = threading.Thread(target=main_service.create_campaign, kwargs={'model': app.model,
                                                                                     'campaign_name': name,
                                                                                     'email': email,
                                                                                     'password': password,

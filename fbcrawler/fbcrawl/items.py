@@ -641,7 +641,7 @@ class FbcrawlItem(scrapy.Item):
     # comments_num = scrapy.Field(
     #     output_processor=comments_strip
     # )
-    comments_num = scrapy.Field()
+    # comments_num = scrapy.Field()
     reactions = scrapy.Field(
         output_processor=reactions_strip
     )  # num of reactions

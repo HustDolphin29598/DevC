@@ -6,7 +6,7 @@ from scrapy.loader import ItemLoader
 from scrapy.http import FormRequest
 from scrapy.exceptions import CloseSpider
 from ..items import FbcrawlItem, CommentsItem, parse_date, parse_date2
-from datetime import datetime
+from datetime import datetime, timedelta
 from scrapy.utils.response import open_in_browser
 
 
@@ -73,7 +73,8 @@ class FacebookSpider(scrapy.Spider):
             self.logger.info('Date attribute not provided, scraping date set to now')
             self.end_time = datetime.now()
         else:
-            self.end_time = datetime.strptime(kwargs['endtime'], '%Y-%m-%d')
+
+            self.end_time = datetime.strptime(kwargs['endtime'], '%Y-%m-%d') + timedelta(days=1)
             self.logger.info('Date attribute provided, fbcrawl will start crawling at {}'.format(kwargs['endtime']))
 
         # parse lang, if not provided (but is supported) it will be guessed in parse_home
@@ -189,15 +190,15 @@ class FacebookSpider(scrapy.Spider):
             self.logger.info('Parsing post n = {}, post_date = {}'.format(abs(self.count) + 1, date))
 
             new.add_value('campaign', self.campaign)
-            count = 0
-            for comments_num in response.xpath('//article/footer/div[2]/a[1]/text()').extract():
-                # print(comments_num)
-                if comments_num.rfind('bình luậ') != -1:
-                    comments_num = comments_num.rstrip(' bình luậ')
-                count += 1
-                if count == post_nums:
-                    new.add_xpath('comments_num', comments_num)
-                    break
+            # count = 0
+            # for comments_num in response.xpath('//article/footer/div[2]/a[1]/text()').extract():
+            #     # print(comments_num)
+            #     if comments_num.rfind('bình luậ') != -1:
+            #         comments_num = comments_num.rstrip(' bình luậ')
+            #     count += 1
+            #     if count == post_nums:
+            #         new.add_xpath('comments_num', comments_num)
+            #         break
             new.add_value('date', date)
             new.add_xpath('post_id', './@data-ft')
             new.add_xpath('url', ".//a[contains(@href,'footer')]/@href")
@@ -276,6 +277,7 @@ class FacebookSpider(scrapy.Spider):
                 '//div[@data-ft]//p//text() | //div[@data-ft]/div[@class]/div[@class]/text()').extract()
             fulltext = "".join(text).lower()
             if self.keyword not in fulltext:
+                logging.info("Not includes keyword. Post discarded")
                 return
 
             # yield new.load_item()
@@ -307,7 +309,7 @@ class FacebookSpider(scrapy.Spider):
             source = reply.xpath('.//h3/a/text()').extract()
             answer = reply.xpath('.//a[contains(@href,"repl")]/@href').extract()
             ans = response.urljoin(answer[::-1][0])
-            self.logger.info('{} nested comment'.format(str(response.meta['index'])))
+            # self.logger.info('{} nested comment'.format(str(response.meta['index'])))
             yield scrapy.Request(ans,
                                  callback=self.parse_reply,
                                  priority=1000,
@@ -341,7 +343,7 @@ class FacebookSpider(scrapy.Spider):
                 for next_page in response.xpath(prev_xpath):
                     new_page = next_page.xpath('.//@href').extract()
                     new_page = response.urljoin(new_page[0])
-                    self.logger.info('New page to be crawled {}'.format(new_page))
+                    # self.logger.info('New page to be crawled {}'.format(new_page))
                     yield scrapy.Request(new_page,
                                          callback=self.parse_post,
                                          meta={'index': 1,
@@ -351,7 +353,7 @@ class FacebookSpider(scrapy.Spider):
                 for next_page in response.xpath(next_xpath):
                     new_page = next_page.xpath('.//@href').extract()
                     new_page = response.urljoin(new_page[0])
-                    self.logger.info('New page to be crawled {}'.format(new_page))
+                    # self.logger.info('New page to be crawled {}'.format(new_page))
                     yield scrapy.Request(new_page,
                                          callback=self.parse_post,
                                          meta={'index': 1,
@@ -360,7 +362,6 @@ class FacebookSpider(scrapy.Spider):
 
     def parse_reactions(self, response):
         try:
-            print("try")
             new = ItemLoader(item=FbcrawlItem(), response=response, parent=response.meta['item'])
             new.context['lang'] = self.lang
             new.add_xpath('like', "//a[contains(@href,'reaction_type=1')]/span/text()")
@@ -372,7 +373,6 @@ class FacebookSpider(scrapy.Spider):
             new.add_xpath('care', "//a[contains(@href,'reaction_type=16')]/span/text()")
             yield new.load_item()
         except:
-            print("except")
             new = ItemLoader(item=FbcrawlItem(), parent=response.meta['item'])
             new.context['lang'] = self.lang
             yield new.load_item()
@@ -395,7 +395,7 @@ class FacebookSpider(scrapy.Spider):
 
             back = response.xpath('//div[contains(@id,"comment_replies_more_1")]/a/@href').extract()
             if back:
-                self.logger.info('Back found, more nested comments')
+                # self.logger.info('Back found, more nested comments')
                 back_page = response.urljoin(back[0])
                 yield scrapy.Request(back_page,
                                      callback=self.parse_reply,
@@ -409,8 +409,8 @@ class FacebookSpider(scrapy.Spider):
 
             else:
                 next_reply = response.meta['url']
-                self.logger.info(
-                    'Nested comments crawl finished, heading to proper page: {}'.format(response.meta['url']))
+                # self.logger.info(
+                #     'Nested comments crawl finished, heading to proper page: {}'.format(response.meta['url']))
                 yield scrapy.Request(next_reply,
                                      callback=self.parse_post,
                                      meta={'index': response.meta['index'] + 1,
@@ -419,7 +419,7 @@ class FacebookSpider(scrapy.Spider):
 
         elif response.meta['flag'] == 'back':
             next_reply = response.meta['url']
-            self.logger.info('Nested comments crawl finished, heading to home page: {}'.format(response.meta['url']))
+            # self.logger.info('Nested comments crawl finished, heading to home page: {}'.format(response.meta['url']))
             yield scrapy.Request(next_reply,
                                  callback=self.parse_post,
                                  meta={'index': response.meta['index'] + 1,

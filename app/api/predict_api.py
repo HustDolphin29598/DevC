@@ -12,4 +12,4 @@ predict = Blueprint('predict', __name__)
 def predict_sentiment_test():
     data = request.get_json()
     text = data['text']
-    return predict_sentiment(app.model_lgr ,text)
+    return predict_sentiment(app.model ,text)

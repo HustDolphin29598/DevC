@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 import string
 import codecs
+
 # Từ điển tích cực, tiêu cực, phủ định
 path_nag = "app/resources/sentiment_dict/nag.txt"
 path_pos = "app/resources/sentiment_dict/pos.txt"
@@ -24,7 +25,6 @@ with codecs.open(path_not, "r", encoding="UTF-8") as f:
     not_ = f.readlines()
 not_list = [n.replace("\n", "") for n in not_]
 
-
 with codecs.open(path_spos, "r", encoding="UTF-8") as f:
     spos = f.readlines()
 spos_list = [n.rstrip() for n in spos]
@@ -38,29 +38,43 @@ def predict_lgr(model, text):
     pre_proba = model.predict_proba([text])[0]
     index = np.argmax(pre_proba)
     acc = str(round(pre_proba[index] * 100, 2))
-    what = "positive" if index == 1 else "negative"
-    if float(acc) < 53.0:
+    if index == 1:
+        what = "positive"
+    elif index == -1:
+        what = "negative"
+    else :
         what = "neutral"
     acc = str(acc) + "%"
     return acc, what
 
 
-def load_model_lgr(filename="app/resources/trained_models/logistic_model.pkl"):
+def load_model_lgr(filename="app/resources/trained_models/lr_model_huy.pkl"):
     classifier_filename_exp = filename
     with open(classifier_filename_exp, "rb") as infile:
         model = pickle.load(infile)
     return model
 
 
-def load_model_svm(filename="sentimentmodel.pkl"):
+def load_model_svm(filename="app/resources/trained_models/svm_model.pkl"):
     classifier_filename_exp = filename
     with open(classifier_filename_exp, "rb") as infile:
         model = pickle.load(infile)
     return model
+
+
+def predict_svm(model, text):
+    predict = model.predict([text])[0]
+    if predict == 1:
+        label = "positive"
+    elif predict == 0:
+        label = "negative"
+    else:
+        label = "neutral"
+
+    return label
 
 
 def normalize_text(text):
-
     # Remove các ký tự kéo dài: vd: đẹppppppp
     text = re.sub(
         r"([A-Z])\1+", lambda m: m.group(1).upper(), text, flags=re.IGNORECASE
@@ -416,7 +430,7 @@ def normalize_text(text):
     for i in range(len_text):
         cp_text = texts[i]
         if (
-            cp_text in not_list
+                cp_text in not_list
         ):  # Xử lý vấn đề phủ định (VD: áo này chẳng đẹp--> áo này notpos)
             numb_word = 2 if len_text - i - 1 >= 4 else len_text - i - 1
 

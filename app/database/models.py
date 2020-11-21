@@ -29,7 +29,6 @@ class Post(mongoEngine.Document):
     post_id = StringField()
     campaign = StringField()
     source = StringField()
-    comments_num = StringField()
     date = DateField()
     comments = DictField()
     url = StringField()

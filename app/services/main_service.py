@@ -1,4 +1,4 @@
-from app.services.model_service import load_model_lgr, normalize_text, predict_lgr
+from app.services.model_service import load_model_lgr, normalize_text, predict_lgr, predict_svm, load_model_svm
 from flask import jsonify
 from app.database import models
 import threading
@@ -10,12 +10,13 @@ import os
 
 
 def init_model():
-    return load_model_lgr()
+    return load_model_svm()
+    # return load_model_lgr()
 
 
 def predict_sentiment(model, text):
     text_en = normalize_text(text)
-    return jsonify(text_en, predict_lgr(model, text_en))
+    return jsonify(text_en, predict_svm(model, text_en))
 
 
 def analyse_campaign(campaign_name):
@@ -116,8 +117,8 @@ def predict_sentiment_campaign(model, campaign_name):
         for comment in comments:
             if comment.text is not None and comment.text:
                 if comment.label is None or not comment.label:
-                    predict = predict_lgr(model, comment.text)
-                    comment.label = predict[1]
+                    predict = predict_svm(model, comment.text)
+                    comment.label = predict
                     comment.save()
 
 

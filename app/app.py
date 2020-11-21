@@ -15,6 +15,6 @@ app.register_blueprint(comment)
 app.register_blueprint(post)
 
 db.initialize_db(app)
-model_lgr = main_service.init_model()
+model = main_service.init_model()
 
 app.run()
