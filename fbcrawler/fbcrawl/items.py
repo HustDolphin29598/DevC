@@ -602,8 +602,57 @@ def parse_date2(init_date, loader_context):
                 min = int(date[0])
                 date = datetime.now() - timedelta(minutes=min) + timedelta(hours=7)
                 return date
+            elif "tháng" in date_string:
+                day = int(date[0])
+                month = int(date[2])
+                year = datetime.now().year
+                return datetime(year, month, day)
             else:
                 return datetime.now()
+        elif l == 4:
+            if "hôm qua" in date_string:
+                hour = int(date[0])
+                min = int(date[1])
+                return  datetime.now() - timedelta(days=1)  - timedelta(hours=hour) - timedelta(minutes=min) + timedelta(hours=7)
+            elif "Thứ" in date_string:
+                first_day_of_week = datetime.today() - timedelta(datetime.today().weekday() % 7) + timedelta(hours=7)
+                year = datetime.now().year
+                hour = int(date[0])
+                min = int(date[1])
+                if "hai" in date_string:
+                    temp = first_day_of_week
+                    return datetime(year, temp.month, temp.day, hour, min)
+                if "ba" in date_string:
+                    temp = first_day_of_week + timedelta(days=1)
+                    return datetime(year, temp.month, temp.day, hour, min)
+                if "tư" in date_string:
+                    temp = first_day_of_week + timedelta(days=2)
+                    return datetime(year, temp.month, temp.day, hour, min)
+                if "năm" in date_string:
+                    temp = first_day_of_week + timedelta(days=3)
+                    return datetime(year, temp.month, temp.day, hour, min)
+                if "sáu" in date_string:
+                    temp = first_day_of_week + timedelta(days=4)
+                    return datetime(year, temp.month, temp.day, hour, min)
+                if "bảy" in date_string:
+                    temp = first_day_of_week + timedelta(days=5)
+                    return datetime(year, temp.month, temp.day, hour, min)
+            elif "nhật" in date_string:
+                first_day_of_week = datetime.today() - timedelta(datetime.today().weekday() % 7) + timedelta(hours=7)
+                year = datetime.now().year
+                hour = int(date[0])
+                min = int(date[1])
+                temp = first_day_of_week + timedelta(days=6)
+                return datetime(year, temp.month, temp.day, hour, min)
+            else:
+                return datetime.now()
+        elif l == 5:
+            year = datetime.now().year
+            month = int(date[4])
+            day = int(date[2])
+            hour = int(date[0])
+            min = int(date[1])
+            return datetime(year, month, day, hour, min)
         elif l == 6:
             year = datetime.now().year
             month = int(date[2])
