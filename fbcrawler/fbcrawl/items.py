@@ -610,11 +610,11 @@ def parse_date2(init_date, loader_context):
             else:
                 return datetime.now()
         elif l == 4:
-            if "hôm qua" in date_string:
+            if "hôm qua" in date_string.lower():
                 hour = int(date[0])
                 min = int(date[1])
                 return  datetime.now() - timedelta(days=1)  - timedelta(hours=hour) - timedelta(minutes=min) + timedelta(hours=7)
-            elif "Thứ" in date_string:
+            elif "Thứ" in date_string.lower():
                 first_day_of_week = datetime.today() - timedelta(datetime.today().weekday() % 7) + timedelta(hours=7)
                 year = datetime.now().year
                 hour = int(date[0])
@@ -647,12 +647,57 @@ def parse_date2(init_date, loader_context):
             else:
                 return datetime.now()
         elif l == 5:
-            year = datetime.now().year
-            month = int(date[4])
-            day = int(date[2])
-            hour = int(date[0])
-            min = int(date[1])
-            return datetime(year, month, day, hour, min)
+            if "lúc" in date_string:
+                if "hôm qua" in date_string.lower():
+                    hour = int(date[3])
+                    min = int(date[4])
+                    yesterday = datetime.today() - timedelta(days=1)
+                    return datetime(yesterday.year, yesterday.month, yesterday.day, hour, min)
+                elif "Thứ" in date_string.lower():
+                    first_day_of_week = datetime.today() - timedelta(datetime.today().weekday() % 7) + timedelta(
+                        hours=7)
+                    year = datetime.now().year
+                    hour = int(date[3])
+                    min = int(date[4])
+                    if "hai" in date_string:
+                        temp = first_day_of_week
+                        return datetime(year, temp.month, temp.day, hour, min)
+                    if "ba" in date_string:
+                        temp = first_day_of_week + timedelta(days=1)
+                        return datetime(year, temp.month, temp.day, hour, min)
+                    if "tư" in date_string:
+                        temp = first_day_of_week + timedelta(days=2)
+                        return datetime(year, temp.month, temp.day, hour, min)
+                    if "năm" in date_string:
+                        temp = first_day_of_week + timedelta(days=3)
+                        return datetime(year, temp.month, temp.day, hour, min)
+                    if "sáu" in date_string:
+                        temp = first_day_of_week + timedelta(days=4)
+                        return datetime(year, temp.month, temp.day, hour, min)
+                    if "bảy" in date_string:
+                        temp = first_day_of_week + timedelta(days=5)
+                        return datetime(year, temp.month, temp.day, hour, min)
+                elif "nhật" in date_string:
+                    first_day_of_week = datetime.today() - timedelta(datetime.today().weekday() % 7) + timedelta(
+                        hours=7)
+                    year = datetime.now().year
+                    hour = int(date[3])
+                    min = int(date[4])
+                    temp = first_day_of_week + timedelta(days=6)
+                    return datetime(year, temp.month, temp.day, hour, min)
+            else:
+                year = datetime.now().year
+                month = int(date[4])
+                day = int(date[2])
+                hour = int(date[0])
+                min = int(date[1])
+                return datetime(year, month, day, hour, min)
+            # year = datetime.now().year
+            # month = int(date[4])
+            # day = int(date[2])
+            # hour = int(date[0])
+            # min = int(date[1])
+            # return datetime(year, month, day, hour, min)
         elif l == 6:
             year = datetime.now().year
             month = int(date[2])
